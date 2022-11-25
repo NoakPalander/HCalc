@@ -48,8 +48,21 @@ executable HCalc
     hs-source-dirs:   app
     default-language: Haskell2010
 
-Test-Suite Tokenizer
+test-suite Tokenizer
     type:           exitcode-stdio-1.0
     main-is:        test-tokenizer.hs
     build-depends:  HCalc, base ^>=4.14.3.0, hspec
     hs-source-dirs: test
+    default-language: Haskell2010
+
+test-suite Converter
+    type:           exitcode-stdio-1.0
+    main-is:        test-converter.hs
+    build-depends:  HCalc, base ^>=4.14.3.0, hspec
+    hs-source-dirs: test
+    default-language: Haskell2010
+
+-- Test-Suite Converter
+--    type: exitcode-stdio-1.0
+--     main-is: test-converter.hs
+ --    build-depends: base ^>=4.14.3.0, hspec, Tokenizer
