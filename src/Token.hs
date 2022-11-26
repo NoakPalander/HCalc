@@ -16,6 +16,8 @@ data Token
   | Literal Int
   deriving (Show, Eq)
 
+type Tokens = [Token]
+
 instance Ord Token where
   t1 > t2   = precedence t1 > precedence t2
   t1 >= t2  = precedence t1 >= precedence t2

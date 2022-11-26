@@ -22,7 +22,7 @@ maintainer:         noak.palander@gmail.com
 extra-source-files: CHANGELOG.md
 
 library
-    exposed-modules:  Token, Tokenizer, Converter, Queue, Stack
+    exposed-modules:  Token, Tokenizer, Converter, Queue, Stack, Error, Parser
 
     -- Modules included in this library but not exported.
     -- other-modules:
@@ -49,20 +49,22 @@ executable HCalc
     default-language: Haskell2010
 
 test-suite Tokenizer
-    type:           exitcode-stdio-1.0
-    main-is:        test-tokenizer.hs
-    build-depends:  HCalc, base ^>=4.14.3.0, hspec
-    hs-source-dirs: test
-    default-language: Haskell2010
+    type:               exitcode-stdio-1.0
+    main-is:            test-tokenizer.hs
+    build-depends:      HCalc, base ^>=4.14.3.0, hspec
+    hs-source-dirs:     test
+    default-language:   Haskell2010
 
 test-suite Converter
-    type:           exitcode-stdio-1.0
-    main-is:        test-converter.hs
-    build-depends:  HCalc, base ^>=4.14.3.0, hspec
-    hs-source-dirs: test
-    default-language: Haskell2010
+    type:               exitcode-stdio-1.0
+    main-is:            test-converter.hs
+    build-depends:      HCalc, base ^>=4.14.3.0, hspec
+    hs-source-dirs:     test
+    default-language:   Haskell2010
 
--- Test-Suite Converter
---    type: exitcode-stdio-1.0
---     main-is: test-converter.hs
- --    build-depends: base ^>=4.14.3.0, hspec, Tokenizer
+test-suite Parser
+    type:               exitcode-stdio-1.0
+    main-is:            test-parser.hs
+    build-depends:      HCalc, base ^>=4.14.3.0, hspec
+    hs-source-dirs:     test
+    default-language:   Haskell2010

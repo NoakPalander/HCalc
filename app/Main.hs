@@ -1,15 +1,15 @@
 module Main where
 
 import Tokenizer
+import Parser
 import Converter
-import System.IO
-import Control.Monad
-import Data.Either (either)
 
+import Data.Either (either, fromRight)
+import Stack
 
-printTokens :: String -> IO ()
-printTokens expr = either print puts $ tokenize expr
-  where puts t = putStrLn (expr ++ ": " ++ show t)
 
 main :: IO ()
-main = printTokens "15 + 1 * 3"
+main = do
+  let tokens = either (error "Tokenization failure") id $ tokenize "1 / 0"
+  let rpn = toRpn tokens
+  print $ parse rpn

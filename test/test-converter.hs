@@ -82,8 +82,8 @@ testDiv label = describe label $ do
     toRpn infx `shouldBe` rpn
 
 
-mixed :: String -> Spec
-mixed label = describe label $ do
+testMixed :: String -> Spec
+testMixed label = describe label $ do
   it "1 * 2 + 3" $ do
     let infx = [Literal 1, Mul, Literal 2, Add, Literal 3]
     let rpn = [Literal 1, Literal 2, Mul, Literal 3, Add]
@@ -100,8 +100,8 @@ mixed label = describe label $ do
     toRpn infx `shouldBe` rpn
 
 
-parens :: String -> Spec
-parens label = describe label $ do
+testParens :: String -> Spec
+testParens label = describe label $ do
   it "(1 + 2) * 3" $ do
     let infx = [OpenParens, Literal 1, Add, Literal 2, CloseParens, Mul, Literal 3]
     let rpn = [Literal 1, Literal 2, Add, Literal 3, Mul]
@@ -118,11 +118,13 @@ parens label = describe label $ do
      let rpn = [Literal 1, Literal 2, Literal 3, Mul, Literal 4, Div, Literal 5, Sub, Add]
      toRpn infx `shouldBe` rpn
 
+
 main :: IO ()
 main = hspec $ do
   testAdd "Addition"
   testSub "Subtraction"
   testMul "Multiplication"
   testDiv "Division"
-  mixed "Mixed operators"
-  parens "Nested operators"
+  testMixed "Mixed operators"
+  testParens "Nested operators"
+  edgeCases "Edge cases"

@@ -9,14 +9,9 @@ import Data.Either
 import Queue
 import Stack
 import Token
+import Error
 
-newtype LexError = Cause String
-  deriving Eq
 
-instance Show LexError where
-  show (Cause e) = e
-
-type Tokens = [Token]
 type Cache = (Queue Token, Queue Char)
 
 -- Pushes to the first queue in the cache given a function
@@ -48,7 +43,7 @@ eval cache@(tokens, keys) key next
   | isDigit key = Right $ composeNum cache key next
   | otherwise = maybe invalid (Right . add) $ toToken [key]
   where
-    invalid = Left . Cause $ "Invalid token: " ++ [key]
+    invalid = Left . LError $ "Invalid token: " ++ [key]
     add t = pushFirst (const t) (tokens, emptyQ)
 
 -- Iterates over the expression and returns the caches with tokens in reversed order
