@@ -2,44 +2,46 @@ module Converter (toRpn) where
 
 import Token
 import Tokenizer
+import Queue
+import Stack
 
-type Queue = [Token]
-type Stack = [Token]
-type Cache = (Queue, Stack)
+type Cache = (Queue Token, Stack Token)
 
-split :: Cache -> Tokens -> Cache
-split cache [] = cache
-split cache@(queue, stack) (n:ns)
-  | n == OpenParens     = split (queue, OpenParens:stack) ns
-  | n == CloseParens    = split (popParens cache n) ns
-  | isNumber n          = split (queue ++ [n], stack) ns
-  | isOperator n        = split (popOps cache n) ns
+-- Reorders the expression into reverse notation
+reorder :: Cache -> Tokens -> Cache
+reorder cache [] = cache
+reorder cache@(queue, stack) (n:ns)
+  | n == OpenParens     = reorder (queue, sPush stack OpenParens) ns
+  | n == CloseParens    = reorder (popParens cache n) ns
+  | isNumber n          = reorder (qPush queue n, stack) ns
+  | isOperator n        = reorder (popOps cache n) ns
   | otherwise           = cache
 
 -- TODO: fix this
 popOps :: Cache -> Token -> Cache
-popOps (q, o2:os) o1
+popOps (q, s) o1
+  | sLength s <= 0 = stop
   | o2 == OpenParens = stop
-  | isOperator o2 && o2 /= OpenParens && o2 > o1 || ((precedence o2 == precedence o1) && associativity o1 == ALeft) = popOps (q ++ [o2], os) o1
+  | isOperator o2 && o2 /= OpenParens && o2 > o1 || ((precedence o2 == precedence o1) && associativity o1 == ALeft) = popOps (qPush q o2, sPop s) o1
   | otherwise = stop
   where
-    stop = (q, o1:o2:os)
+    o2 = sTop s
+    stop = (q, sPush s o1)
 
-popOps (queue, stack) op = (queue, op:stack)
-
+-- Pops parentheses
 popParens :: Cache -> Token -> Cache
-popParens (q, o:os) t
-  | o /= OpenParens     = popParens (q ++ [o], os) t
-  | o == OpenParens     = (q, os)
-  | otherwise           = error "Mismatched parens"
-
-popParens (q, []) _ = error "Mismatched parens"
+popParens (q, s) t
+  | sLength s <= 0      = error "Mismatched parens"
+  | o /= OpenParens     = popParens (qPush q o, sPop s) t
+  | otherwise           = (q, sPop s)
+  where
+   o = sTop s
 
 shunting :: Cache -> Tokens
-shunting (queue, []) = queue
-shunting (queue, o:os)
-  | o /= OpenParens     = shunting (queue ++ [o], os)
+shunting (queue, Stack []) = qToList queue
+shunting (queue, Stack (o:os))
+  | o /= OpenParens     = shunting (qPush queue o, Stack os)
   | otherwise           = error "Mismatched parens"
 
 toRpn :: Tokens -> Tokens
-toRpn tokens = shunting $ split ([], []) tokens
+toRpn tokens = shunting $ reorder (Queue [], Stack []) tokens

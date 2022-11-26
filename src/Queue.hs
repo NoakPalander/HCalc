@@ -26,14 +26,24 @@ qPop (Queue []) = Queue []
 qPop (Queue (_:xs)) = Queue xs
 
 -- Returns the first element of the queue if it has one
-qFront :: Queue a -> Maybe a
-qFront (Queue []) = Nothing
-qFront (Queue (x:xs)) = Just x
+qPeek :: Queue a -> Maybe a
+qPeek (Queue []) = Nothing
+qPeek (Queue (x:_)) = Just x
+
+-- Returns the first element of the queue
+qFront :: Queue a -> a
+qFront (Queue []) = error "Cannot access the front element on an empty queue"
+qFront (Queue (x:_)) = x
+
+-- Returns the last element of the queue if it has one
+qLast :: Queue a -> a
+qLast (Queue []) = error "Cannot access the back element on an empty queue"
+qLast (Queue xs) = last xs
 
 -- Returns the last item of the queue if it has one
-qBack :: Queue a -> Maybe a
-qBack (Queue []) = Nothing
-qBack (Queue xs) = Just $ last xs
+qBack :: Queue a -> a
+qBack (Queue []) = error "Cannot access the back element on an empty queue"
+qBack (Queue xs) = last xs
 
 -- Returns the length of the queue
 qLength :: Queue a -> Int

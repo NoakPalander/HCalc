@@ -24,15 +24,15 @@ sPop :: Stack a -> Stack a
 sPop (Stack []) = Stack []
 sPop (Stack (x:xs)) = Stack xs
 
--- Returns the top element of the stack if there is one
-sFront :: Stack a -> Maybe a
-sFront (Stack []) = Nothing
-sFront (Stack (x:_)) = Just x
+-- Returns the top element of the stack
+sTop :: Stack a -> a
+sTop (Stack []) = error "Cannot access the top on an empty stack"
+sTop (Stack (x:_)) = x
 
--- Returns the bottom element of the stack if there is one
-sBack :: Stack a -> Maybe a
-sBack (Stack []) = Nothing
-sBack (Stack xs) = Just $ last xs
+-- Returns the top element of the stack if it has one
+sPeek :: Stack a -> Maybe a
+sPeek (Stack []) = Nothing
+sPeek (Stack (x:_)) = Just x
 
 -- Returns the length of the stack
 sLength :: Stack a -> Int

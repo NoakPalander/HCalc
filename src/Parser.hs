@@ -31,7 +31,7 @@ evalNum _ _ = Left $ PError "Cannot evaluate a non-number as a number"
 
 -- Evaluates an RPN expression
 evalRpn :: DStack -> Tokens -> Either ParseError Double
-evalRpn s [] = maybe (Left $ PError "Empty stack error") Right $ sFront s
+evalRpn s [] = maybe (Left $ PError "Empty stack error") Right $ sPeek s
 evalRpn s (t:ts)
   | isOperator t = either Left (`evalRpn` ts) $ evalOp s t
   | isNumber t   = either Left (`evalRpn` ts) $ evalNum s t
