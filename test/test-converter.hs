@@ -1,11 +1,14 @@
+import Token
 import Tokenizer
 import Converter
 import Test.Hspec
+
 
 edgeCases :: String -> Spec
 edgeCases label = describe label $ do
   it "Empty expression" $ do
     toRpn [] `shouldBe` []
+
 
 testAdd :: String -> Spec
 testAdd label = describe label $ do
@@ -24,6 +27,7 @@ testAdd label = describe label $ do
     let rpn = [Literal 1, Literal 2, Add, Literal 3, Add, Literal 4, Add]
     toRpn infx `shouldBe` rpn
 
+
 testSub :: String -> Spec
 testSub label = describe label $ do
   it "1 - 1" $ do
@@ -40,6 +44,7 @@ testSub label = describe label $ do
     let infx = [Literal 4, Sub, Literal 3, Sub, Literal 2, Sub, Literal 1]
     let rpn = [Literal 4, Literal 3, Sub, Literal 2, Sub, Literal 1, Sub]
     toRpn infx `shouldBe` rpn
+
 
 testMul :: String -> Spec
 testMul label = describe label $ do
@@ -58,6 +63,7 @@ testMul label = describe label $ do
     let rpn = [Literal 4, Literal 3, Mul, Literal 2, Mul, Literal 1, Mul]
     toRpn infx `shouldBe` rpn
 
+
 testDiv :: String -> Spec
 testDiv label = describe label $ do
   it "1 / 1" $ do
@@ -75,6 +81,7 @@ testDiv label = describe label $ do
     let rpn = [Literal 4, Literal 3, Div, Literal 2, Div, Literal 1, Div]
     toRpn infx `shouldBe` rpn
 
+
 mixed :: String -> Spec
 mixed label = describe label $ do
   it "1 * 2 + 3" $ do
@@ -91,6 +98,7 @@ mixed label = describe label $ do
     let infx = [Literal 5, Mul, Literal 2, Div, Literal 3, Add, Literal 15, Sub, Literal 2]
     let rpn = [Literal 5, Literal 2, Mul, Literal 3, Div, Literal 15, Add, Literal 2, Sub]
     toRpn infx `shouldBe` rpn
+
 
 parens :: String -> Spec
 parens label = describe label $ do

@@ -22,7 +22,7 @@ maintainer:         noak.palander@gmail.com
 extra-source-files: CHANGELOG.md
 
 library
-    exposed-modules:  Tokenizer, Converter
+    exposed-modules:  Token, Tokenizer, Converter, Queue, Stack
 
     -- Modules included in this library but not exported.
     -- other-modules:

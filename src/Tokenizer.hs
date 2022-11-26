@@ -1,122 +1,64 @@
-module Tokenizer
-  ( Token(..)
-  , Tokens
-  , Assoc(..)
-  , isToken
-  , isOperator
-  , isNumber
-  , toString
-  , toToken
-  , assoc
-  , precedence
-  , tokenize
-  ) where
+module Tokenizer (Tokens, tokenize) where
 
 import Prelude hiding (traverse)
 import Data.Char (isDigit, isSpace)
 import Text.Read (readMaybe)
 import Data.Maybe (isJust, fromJust)
 import Data.List (isInfixOf)
+import Data.Either
+import Queue
+import Stack
+import Token
 
--- Token types
-data Token
-  = OpenParens
-  | CloseParens
-  | Add
-  | Sub
-  | Mul
-  | Div
-  | Literal Int
-  deriving (Show, Eq)
+newtype LexError = Cause String
+  deriving Eq
 
-instance Ord Token where
-  t1 > t2   = precedence t1 > precedence t2
-  t1 >= t2  = precedence t1 >= precedence t2
-  t1 < t2   = precedence t1 < precedence t2
-  t1 <= t2  = precedence t1 <= precedence t2
-
-precedence :: Token -> Int
-precedence t = case t of
-  Add -> 2
-  Sub -> 2
-  Mul -> 3
-  Div -> 3
-  _ -> error $ "Only operators have a precedence, received an " ++ show t
-
-data Assoc = ALeft | ARight deriving Eq
-
-assoc :: Token -> Assoc
-assoc t
-  | isOperator t  = ALeft
-  | otherwise     = ARight
-
--- Returns a true if the character is ignorable
-ignorable :: Char -> Bool
-ignorable = isSpace
-
--- Returns true if the string is a valid token
-isToken :: String -> Bool
-isToken s = s `isInfixOf` "()+-*/" || isJust (readMaybe s :: Maybe Int)
-
-isOperator :: Token -> Bool
-isOperator = flip isInfixOf "+-*/" . toString
-
-isNumber :: Token -> Bool
-isNumber (Literal _)  = True
-isNumber _            = False
-
--- Stringify's a token
-toString :: Token -> String
-toString t = case t of
-    OpenParens -> "("
-    CloseParens -> ")"
-    Add -> "+"
-    Sub -> "-"
-    Mul -> "*"
-    Div -> "/"
-    Literal n -> show n
-
--- Converts a string to a token if it's valid
-toToken :: String -> Maybe Token
-toToken s = case s of
-  "(" -> Just OpenParens
-  ")" -> Just CloseParens
-  "+" -> Just Add
-  "-" -> Just Sub
-  "*" -> Just Mul
-  "/" -> Just Div
-  _ ->  fmap Literal (readMaybe s)
+instance Show LexError where
+  show (Cause e) = e
 
 type Tokens = [Token]
-type Cache = ([Token], [Char])
+type Cache = (Queue Token, Queue Char)
+
+-- Pushes to the first queue in the cache given a function
+pushFirst :: (Cache -> Token) -> Cache -> Cache
+pushFirst func c@(f, s) = (qPush f (func c), s)
+
+-- Pushes to the second queue in the cache given a function
+pushSecond :: (Cache -> Char) -> Cache -> Cache
+pushSecond func c@(f, s) = (f, qPush s (func c))
 
 -- Returns an empty cache
 empty :: Cache
-empty = ([], [])
+empty = (emptyQ, emptyQ)
+
+-- Composes a number given its current token and stored cache
+compose :: Cache -> Char -> Token
+compose (tokens, keys) c = fromJust $ toToken (qToList (qPush keys c))
+
+-- Composes a complete number given it's stored cache ,current and next token
+composeNum :: Cache -> Char -> Maybe Char -> Cache
+composeNum cache@(tokens, keys) key Nothing = pushFirst (`compose` key) cache
+composeNum cache@(tokens, keys) key (Just next)
+  | isDigit next  = pushSecond (const key) cache
+  | otherwise     =  pushFirst (`compose` key) cache
 
 -- Evaluates a token and possibly its next token, and keeps track of a cache
-eval :: Cache -> Char -> Maybe Char -> Cache
-eval cache@(ts, keys) c cn
-  | isDigit c = num cache c cn
-  | otherwise = case toToken [c] of
-      Just t -> (ts ++ [t], [])
-      Nothing -> if ignorable c then cache else error $ "Invalid token: " ++ [c]
-
+eval :: Cache -> Char -> Maybe Char -> Either LexError Cache
+eval cache@(tokens, keys) key next
+  | isDigit key = Right $ composeNum cache key next
+  | otherwise = maybe invalid (Right . add) $ toToken [key]
   where
-    addCurrent :: Cache
-    addCurrent = (ts ++ [fromJust (toToken (keys ++ [c]))], keys)
-
-    num :: Cache -> Char -> Maybe Char -> Cache
-    num (tokens, keys) c next = case next of
-      Nothing -> addCurrent
-      Just n -> if not (isDigit n) then addCurrent else (tokens, keys ++ [c])
+    invalid = Left . Cause $ "Invalid token: " ++ [key]
+    add t = pushFirst (const t) (tokens, emptyQ)
 
 -- Iterates over the expression and returns the caches with tokens in reversed order
-traverse :: String -> Cache -> Cache
-traverse [] cache = cache
-traverse (x:y:ys) cache = traverse (y:ys) (eval cache x $ Just y)
-traverse (x:xs) cache = traverse xs (eval cache x Nothing)
+traverse :: String -> Cache -> Either LexError Cache
+traverse [] c = Right c
+traverse (x:y:ys) c = either Left (traverse (y:ys)) $ eval c x (Just y)
+traverse (x:xs) c = either Left (traverse xs) $ eval c x Nothing
 
 -- Traverses the expression and returns a list of tokens
-tokenize :: String -> Tokens
-tokenize s = fst $ traverse s empty
+tokenize :: String -> Either LexError Tokens
+tokenize [] = Right []
+tokenize s  = qToList . fst <$> traverse stripped empty
+  where stripped = filter (not . ignorable) s

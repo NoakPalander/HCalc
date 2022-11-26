@@ -3,14 +3,13 @@ module Main where
 import Tokenizer
 import Converter
 import System.IO
+import Control.Monad
+import Data.Either (either)
 
--- TODO: Write unit tests for toRpn
+
+printTokens :: String -> IO ()
+printTokens expr = either print puts $ tokenize expr
+  where puts t = putStrLn (expr ++ ": " ++ show t)
+
 main :: IO ()
-main = do
-  putStr "Enter an expression > "
-  hFlush stdout
-
-  input <- getLine
-  let tokens = tokenize input
-  putStrLn $ "Tokens: " ++ show tokens
-  putStrLn $ "RPN: " ++ show (toRpn tokens)
+main = printTokens "15 + 1 * 3"

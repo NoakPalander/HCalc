@@ -1,5 +1,6 @@
 module Converter (toRpn) where
 
+import Token
 import Tokenizer
 
 type Queue = [Token]
@@ -15,10 +16,11 @@ split cache@(queue, stack) (n:ns)
   | isOperator n        = split (popOps cache n) ns
   | otherwise           = cache
 
+-- TODO: fix this
 popOps :: Cache -> Token -> Cache
 popOps (q, o2:os) o1
   | o2 == OpenParens = stop
-  | isOperator o2 && o2 /= OpenParens && o2 > o1 || ((precedence o2 == precedence o1) && assoc o1 == ALeft) = popOps (q ++ [o2], os) o1
+  | isOperator o2 && o2 /= OpenParens && o2 > o1 || ((precedence o2 == precedence o1) && associativity o1 == ALeft) = popOps (q ++ [o2], os) o1
   | otherwise = stop
   where
     stop = (q, o1:o2:os)
