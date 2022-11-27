@@ -1,30 +1,41 @@
 #+title: HCalc
 
 ** Example
-```
+#+begin_src
 λ 1 + 2
 > 3.0
 λ 15 - 2
 > 13.0
 λ 200 + 15 * (3 - 29 / 3)
 > 100.0
-```
+#+end_src
 
-** Run HCalc:
-```
-cabal run HCalc
-```
+** Running HCalc:
+#+begin_src
+$ cabal run HCalc
+#+end_src
 
 ** Running all tests
-```
-./tests.sh
-```
+#+begin_src
+$ ./tests.sh
+#+end_src
 
 ** Project sturcture
-- src/Converter.hs - Utilities to convert infix to RPN
-- src/Error.hs - Different error types
-- src/Parser.hs - Parses and evaluates the expressions
-- src/Queue.hs - Queue data type
-- src/Stack.hs - Stack data type
-- src/Token.hs - The token sum type
-- src/Tokenizer.hs - Tokenizes an infix expression
+#+begin_src
+├── HCalc.cabal - Project configuration
+├── app
+│   └── Main.hs - Main application
+├── src
+│   ├── Converter.hs - Converts infix to RPN
+│   ├── Error.hs     - Errors types
+│   ├── Parser.hs    - Parses the expressions
+│   ├── Queue.hs     - Queue data type
+│   ├── Stack.hs     - Stack data type
+│   ├── Token.hs     - Token sum type and utilities
+│   └── Tokenizer.hs - Tokenizes infix expressions
+├── test
+│   ├── test-converter.hs - Unit tests for the converter
+│   ├── test-parser.hs    - Unit tests for the parser
+│   └── test-tokenizer.hs - Unit tests for the tokenizer
+└── tests.sh              - Runs all tests
+#+end_src
