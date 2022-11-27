@@ -37,13 +37,23 @@ composeNum cache@(tokens, keys) key (Just next)
   | isDigit next  = pushSecond (const key) cache
   | otherwise     =  pushFirst (`compose` key) cache
 
+-- Composes a unary operator
+composeUnary :: Cache -> Char -> Either LexError Cache
+composeUnary q k = either Left (\t -> Right $ pushFirst (const t) q) token
+  where
+    token = maybe (Left . LError $ "Invalid token") (Right . Unary) $ toToken [k]
+
+-- TODO: This now handles unary operators but is incredibly ugly
 -- Evaluates a token and possibly its next token, and keeps track of a cache
 eval :: Cache -> Char -> Maybe Char -> Either LexError Cache
 eval cache@(tokens, keys) key next
   | isDigit key = Right $ composeNum cache key next
+  | key == '(' || key == ')' = maybe invalid (Right . add) $ toToken [key]
+  | (isOperator prev || prev == OpenParens) && isStringOp [key] = composeUnary cache key
   | otherwise = maybe invalid (Right . add) $ toToken [key]
   where
     invalid = Left . LError $ "Invalid token: " ++ [key]
+    prev = qBack tokens
     add t = pushFirst (const t) (tokens, emptyQ)
 
 -- Iterates over the expression and returns the caches with tokens in reversed order

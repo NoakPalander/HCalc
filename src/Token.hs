@@ -14,6 +14,7 @@ data Token
   | Mul
   | Div
   | Literal Int
+  | Unary Token
   deriving (Show, Eq)
 
 type Tokens = [Token]
@@ -36,6 +37,7 @@ precedence t = case t of
   Sub -> Just 2
   Mul -> Just 3
   Div -> Just 3
+  Unary _ -> Just 4
   _ -> Nothing
 
 -- TODO: This is pretty ugly
@@ -48,9 +50,15 @@ associativity t
   | isOperator t  = ALeft
   | otherwise     = ARight
 
+isParens :: Token -> Bool
+isParens t = t == OpenParens || t == CloseParens
+
 -- Returns true if the string is a valid token
 isToken :: String -> Bool
 isToken s = s `isInfixOf` "()+-*/" || isJust (readMaybe s :: Maybe Int)
+
+isStringOp :: String -> Bool
+isStringOp s = s `isInfixOf` "+-*/"
 
 -- Returns true if the token is an operator
 isOperator :: Token -> Bool

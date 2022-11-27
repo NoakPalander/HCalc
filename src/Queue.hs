@@ -36,9 +36,9 @@ qFront (Queue []) = error "Cannot access the front element on an empty queue"
 qFront (Queue (x:_)) = x
 
 -- Returns the last element of the queue if it has one
-qLast :: Queue a -> a
-qLast (Queue []) = error "Cannot access the back element on an empty queue"
-qLast (Queue xs) = last xs
+qLast :: Queue a -> Maybe a
+qLast (Queue []) = Nothing
+qLast (Queue xs) = Just $ last xs
 
 -- Returns the last item of the queue if it has one
 qBack :: Queue a -> a
