@@ -7,6 +7,7 @@ import Error
 import Converter (toRpn)
 import Data.Either (fromRight)
 
+
 type DStack = Stack Double
 
 -- Applies an operator on two operands, or returns a parse error
@@ -43,3 +44,10 @@ evalRpn s (t:ts)
 -- Parses an RPN expression
 parse :: Tokens -> Either ParseError Double
 parse = evalRpn emptyS
+
+-- Attempts to evaluate an expression
+eval :: String -> Either ParseError Double
+eval expr = do
+  tokens <- mapE PError $ tokenize expr
+  rpn <- mapE PError $ toRpn tokens
+  parse rpn
