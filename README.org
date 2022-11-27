@@ -1,5 +1,30 @@
 #+title: HCalc
 
-* Simple calculator made in Haskell
-- src/Tokenizer.hs - Tokenizes an expression
-- src/Converter.hs - Converts an expression to reverse Polish notation
+** Example
+```
+λ 1 + 2
+> 3.0
+λ 15 - 2
+> 13.0
+λ 200 + 15 * (3 - 29 / 3)
+> 100.0
+```
+
+** Run HCalc:
+```
+cabal run HCalc
+```
+
+** Running all tests
+```
+./tests.sh
+```
+
+** Project sturcture
+- src/Converter.hs - Utilities to convert infix to RPN
+- src/Error.hs - Different error types
+- src/Parser.hs - Parses and evaluates the expressions
+- src/Queue.hs - Queue data type
+- src/Stack.hs - Stack data type
+- src/Token.hs - The token sum type
+- src/Tokenizer.hs - Tokenizes an infix expression
