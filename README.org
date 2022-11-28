@@ -15,9 +15,16 @@
 $ cabal run HCalc
 #+end_src
 
-** Running all tests
+** Tests
+Running all tests can be done via the shell file:
 #+begin_src
-$ ./tests.sh
+$ chmod +x tests.sh # make it executalbe
+$ ./tests.sh        # runs all hspec tests with sensible defaults
+#+end_src
+
+Or specific ones via:
+#+begin_src
+$ cabal test <test-suite> --test-show-details=direct --test-option=--format=progress
 #+end_src
 
 ** Project sturcture
