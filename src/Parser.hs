@@ -31,18 +31,17 @@ evalNum s (Literal n) = Right $ sPush s (fromIntegral n)
 evalNum _ _ = Left $ PError "Cannot evaluate a non-number as a number"
 
 -- Evaluates an RPN expression
-evalRpn :: DStack -> Tokens -> Either ParseError DStack
-evalRpn s [] = Right s -- maybe (Left $ PError "Empty stack error") Right $ sPeek s
+evalRpn :: DStack -> Tokens -> Either ParseError Double
+evalRpn s [] = maybe (Left $ PError "Empty stack error") Right $ sPeek s
 evalRpn s (t:ts)
-  | isOperator t = evalOp s t -- either Left (`evalRpn` ts) $ evalOp s t
-  | isNumber t   = evalNum s t -- either Left (`evalRpn` ts) $ evalNum s t
+  | isOperator t = either Left (`evalRpn` ts) $ evalOp s t
+  | isNumber t   = either Left (`evalRpn` ts) $ evalNum s t
   | otherwise    = case t of
       OpenParens -> Left $ PError "("
       CloseParens -> Left $ PError ")"
       _ -> Left $ PError "_"
 
 -- Parses an RPN expression
-{-
 parse :: Tokens -> Either ParseError Double
 parse = evalRpn emptyS
 
@@ -52,8 +51,3 @@ eval expr = do
   tokens <- mapE PError $ tokenize expr
   rpn <- mapE PError $ toRpn tokens
   parse rpn
--}
-
-testEval :: IO ()
-testEval = do
-  print $ evalRpn (Stack [4.0, 5.0]) [Sub, Sub]

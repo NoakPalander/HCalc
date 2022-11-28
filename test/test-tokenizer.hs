@@ -58,6 +58,9 @@ testParens label = describe label $ do
         OpenParens, Literal 5, Mul, Literal 2, CloseParens,
         Add, Literal 15, Div, OpenParens, Literal 2, Sub, Literal 1, CloseParens]
 
+  it "(5 - 2) + (-3)" $ do
+    tokenize "(5 - 2) + (-3)" `shouldBe` Right [OpenParens, Literal 5, Sub, Literal 2, CloseParens,
+                                               Add, OpenParens, Unary Sub, Literal 3, CloseParens]
 
 main :: IO ()
 main = hspec $ do

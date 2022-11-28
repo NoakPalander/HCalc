@@ -50,8 +50,9 @@ associativity t
   | isOperator t  = ALeft
   | otherwise     = ARight
 
-isParens :: Token -> Bool
-isParens t = t == OpenParens || t == CloseParens
+
+isParens :: Char -> Bool
+isParens c = c == '(' || c == ')'
 
 -- Returns true if the string is a valid token
 isToken :: String -> Bool

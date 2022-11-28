@@ -43,18 +43,20 @@ composeUnary q k = either Left (\t -> Right $ pushFirst (const t) q) token
   where
     token = maybe (Left . LError $ "Invalid token") (Right . Unary) $ toToken [k]
 
--- TODO: This now handles unary operators but is incredibly ugly
--- Evaluates a token and possibly its next token, and keeps track of a cache
+-- Evaluates a token and possibly its next token, and keeps track of the cache
 eval :: Cache -> Char -> Maybe Char -> Either LexError Cache
-eval cache@(tokens, keys) key next
-  | isDigit key = Right $ composeNum cache key next
-  | key == '(' || key == ')' = maybe invalid (Right . add) $ toToken [key]
-  | (isOperator prev || prev == OpenParens) && isStringOp [key] = composeUnary cache key
-  | otherwise = maybe invalid (Right . add) $ toToken [key]
+eval cache@(ts, ks) k n
+  | isDigit k = Right $ composeNum cache k n
+  | isParens k = maybe invalid (Right . add) $ toToken [k]
+  | otherwise = do
+      -- Required conditions for a token to be matched as a unary operator
+      if qLength ts == 0 || (isOperator prev || prev == OpenParens) && isStringOp [k] then
+        composeUnary cache k
+      else maybe invalid (Right . add) $ toToken [k]
   where
-    invalid = Left . LError $ "Invalid token: " ++ [key]
-    prev = qBack tokens
-    add t = pushFirst (const t) (tokens, emptyQ)
+    invalid = Left . LError $ "Invalid token: " ++ [k]
+    prev = qBack ts
+    add t = pushFirst (const t) (ts, emptyQ)
 
 -- Iterates over the expression and returns the caches with tokens in reversed order
 traverse :: String -> Cache -> Either LexError Cache

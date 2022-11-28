@@ -10,4 +10,4 @@ import System.IO
 import Error (ParseError(PError))
 
 main :: IO ()
-main = either print print $ tokenize "5 - (-4)"
+main = either print print $ tokenize "5 -4 + 5"
