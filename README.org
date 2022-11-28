@@ -18,7 +18,7 @@ $ cabal run HCalc
 ** Tests
 Running all tests can be done via the shell file:
 #+begin_src
-$ chmod +x tests.sh # make it executalbe
+$ chmod +x tests.sh # make it executable
 $ ./tests.sh        # runs all hspec tests with sensible defaults
 #+end_src
 
