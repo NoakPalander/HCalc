@@ -27,15 +27,17 @@ empty :: Cache
 empty = (emptyQ, emptyQ)
 
 -- Composes a number given its current token and stored cache
-compose :: Cache -> Char -> Token
-compose (tokens, keys) c = fromJust $ toToken (qToList (qPush keys c))
+compose :: Cache -> Char -> Either LexError Token
+compose (ts, ks) c = maybe (Left $ LError "Invalid token sequence") Right comp
+  where
+    comp = toToken $ qToList (qPush ks c)
 
 -- Composes a complete number given it's stored cache ,current and next token
-composeNum :: Cache -> Char -> Maybe Char -> Cache
-composeNum cache@(tokens, keys) key Nothing = pushFirst (`compose` key) cache
-composeNum cache@(tokens, keys) key (Just next)
-  | isDigit next  = pushSecond (const key) cache
-  | otherwise     =  pushFirst (`compose` key) cache
+composeNum :: Cache -> Char -> Maybe Char -> Either LexError Cache
+composeNum cache@(ts, _) k Nothing = (\c -> pushFirst (const c) cache) <$> compose cache k
+composeNum cache@(ts, _) k (Just n)
+  | isDigit n = Right $ pushSecond (const k) cache
+  | otherwise =  (\c -> pushFirst (const c) cache) <$> compose cache k
 
 -- Composes a unary operator
 composeUnary :: Cache -> Char -> Either LexError Cache
@@ -46,7 +48,7 @@ composeUnary q k = either Left (\t -> Right $ pushFirst (const t) q) token
 -- Evaluates a token and possibly its next token, and keeps track of the cache
 eval :: Cache -> Char -> Maybe Char -> Either LexError Cache
 eval cache@(ts, ks) k n
-  | isDigit k = Right $ composeNum cache k n
+  | isDigit k = composeNum cache k n
   | isParens k = maybe invalid (Right . add) $ toToken [k]
   | otherwise = do
       -- Required conditions for a token to be matched as a unary operator
