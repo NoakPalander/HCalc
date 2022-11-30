@@ -8,6 +8,8 @@
 > 13.0
 λ 200 + 15 * (3 - 29 / 3)
 > 100.0
+λ 200 * 15 + 2^(-5)
+> 3000.03125
 #+end_src
 
 ** Running HCalc:
@@ -33,12 +35,14 @@ $ cabal test <test-suite> --test-show-details=direct --test-option=--format=prog
 ├── app
 │   └── Main.hs - Main application
 ├── src
+│   ├── Repl.hs      - The REPL
 │   ├── Converter.hs - Converts infix to RPN
 │   ├── Error.hs     - Errors types
 │   ├── Parser.hs    - Parses the expressions
 │   ├── Queue.hs     - Queue data type
 │   ├── Stack.hs     - Stack data type
 │   ├── Token.hs     - Token sum type and utilities
+│   ├── Operators.hs - Contains the definition of the built-in operators
 │   └── Tokenizer.hs - Tokenizes infix expressions
 ├── test
 │   ├── test-converter.hs - Unit tests for the converter
