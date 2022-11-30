@@ -5,12 +5,10 @@ import Data.Char (isDigit, isSpace)
 import Text.Read (readMaybe)
 import Data.Maybe (isJust, fromJust)
 import Data.List (isInfixOf)
-import Data.Either
+import Data.Either (either)
 import Queue
-import Stack
 import Token
 import Error
-
 
 type Cache = (Queue Token, Queue Char)
 
@@ -43,7 +41,7 @@ composeNum cache@(ts, _) k (Just n)
 composeUnary :: Cache -> Char -> Either LexError Cache
 composeUnary q k = either Left (\t -> Right $ pushFirst (const t) q) token
   where
-    token = maybe (Left . LError $ "Invalid token") (Right . Unary) $ toToken [k]
+    token = maybe (Left . LError $ "Invalid token " ++ [k]) (Right . Unary) $ toToken [k]
 
 -- Evaluates a token and possibly its next token, and keeps track of the cache
 eval :: Cache -> Char -> Maybe Char -> Either LexError Cache
@@ -60,13 +58,13 @@ eval cache@(ts, ks) k n
     prev = qBack ts
     add t = pushFirst (const t) (ts, emptyQ)
 
--- Iterates over the expression and returns the caches with tokens in reversed order
+-- Iterates over the expression and returns the caches with tokens
 traverse :: String -> Cache -> Either LexError Cache
 traverse [] c = Right c
 traverse (x:y:ys) c = either Left (traverse (y:ys)) $ eval c x (Just y)
 traverse (x:xs) c = either Left (traverse xs) $ eval c x Nothing
 
--- Traverses the expression and returns a list of tokens
+-- Traverses the expression and returns a list of infix tokens
 tokenize :: String -> Either LexError Tokens
 tokenize [] = Right []
 tokenize s  = qToList . fst <$> traverse stripped empty

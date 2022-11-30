@@ -1,8 +1,8 @@
 module Repl (repl) where
 
-import Data.Either (either, isLeft, fromRight, fromLeft)
+import Data.Char (toLower)
+import Data.Either (either)
 import System.IO
-import Error
 import Parser
 
 
@@ -17,7 +17,7 @@ repl = do
   putStr "λ "
   hFlush stdout
   line <- getLine
-  if line == "exit" then do
+  if map toLower line == "exit" then do
     return ()
     else do
       either logError logResult $ eval line

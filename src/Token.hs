@@ -13,6 +13,7 @@ data Token
   | Sub
   | Mul
   | Div
+  | Exp
   | Literal Int
   | Unary Token
   deriving (Show, Eq)
@@ -37,18 +38,18 @@ precedence t = case t of
   Sub -> Just 2
   Mul -> Just 3
   Div -> Just 3
+  Exp -> Just 4
   Unary _ -> Just 4
   _ -> Nothing
 
--- TODO: This is pretty ugly
 data Associativity = ALeft | ARight
   deriving Eq
 
 -- Returns true if the
 associativity :: Token -> Associativity
 associativity t
-  | isOperator t  = ALeft
-  | otherwise     = ARight
+  | isOperator t && t /= Exp = ALeft
+  | otherwise = ARight
 
 -- Returns true if the character is a parentheses
 isParens :: Char -> Bool
@@ -56,14 +57,14 @@ isParens c = c == '(' || c == ')'
 
 -- Returns true if the string is a valid token
 isToken :: String -> Bool
-isToken s = s `isInfixOf` "()+-*/" || isJust (readMaybe s :: Maybe Int)
+isToken s = s `isInfixOf` "()+-*/^" || isJust (readMaybe s :: Maybe Int)
 
 isStringOp :: String -> Bool
-isStringOp s = s `isInfixOf` "+-*/"
+isStringOp s = s `isInfixOf` "+-*/^"
 
 -- Returns true if the token is an operator
 isOperator :: Token -> Bool
-isOperator = flip isInfixOf "+-*/" . toString
+isOperator = flip isInfixOf "+-*/^" . toString
 
 isUnary :: Token -> Bool
 isUnary (Unary _) = True
@@ -83,6 +84,7 @@ toString t = case t of
     Sub -> "-"
     Mul -> "*"
     Div -> "/"
+    Exp -> "^"
     Literal n -> show n
     Unary t -> toString t
 
@@ -95,4 +97,5 @@ toToken s = case s of
   "-" -> Just Sub
   "*" -> Just Mul
   "/" -> Just Div
+  "^" -> Just Exp
   _ ->  fmap Literal (readMaybe s)
