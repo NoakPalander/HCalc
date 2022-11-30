@@ -50,7 +50,7 @@ associativity t
   | isOperator t  = ALeft
   | otherwise     = ARight
 
-
+-- Returns true if the character is a parentheses
 isParens :: Char -> Bool
 isParens c = c == '(' || c == ')'
 
@@ -64,6 +64,10 @@ isStringOp s = s `isInfixOf` "+-*/"
 -- Returns true if the token is an operator
 isOperator :: Token -> Bool
 isOperator = flip isInfixOf "+-*/" . toString
+
+isUnary :: Token -> Bool
+isUnary (Unary _) = True
+isUnary _         = False
 
 -- Returns true if the token is a number
 isNumber :: Token -> Bool
@@ -80,6 +84,7 @@ toString t = case t of
     Mul -> "*"
     Div -> "/"
     Literal n -> show n
+    Unary t -> toString t
 
 -- Converts a string to a token if it's valid
 toToken :: String -> Maybe Token

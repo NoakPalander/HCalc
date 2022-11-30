@@ -73,10 +73,10 @@ testParens label = describe label $ do
     parse [Literal 5, Literal 2, Mul, Literal 15, Literal 2, Literal 1, Sub, Div, Add] `shouldBe` Right 25.0
 
   it "1 + (-15)" $ do
-    parse [Literal 1, Literal 15, Sub, Add] `shouldBe` Right (-14.0)
+    parse [Literal 1, Literal 15, Unary Sub, Add] `shouldBe` Right (-14.0)
 
   it "5 - (-5)" $ do
-    parse [Literal 5, Literal 5, Sub, Sub] `shouldBe` Right 10.0
+    parse [Literal 5, Literal 5, Unary Sub, Sub] `shouldBe` Right 10.0
 
 main :: IO ()
 main = hspec $ do
